@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <h:outputStylesheet name="./css/default.css"/>
+        <h:outputStylesheet name="./css/cssLayout.css"/>
+        <title>Facelets Template</title>
+    </h:head>
+
+    <h:body>
+
+        <div id="top">
+            <ui:insert name="top">Top</ui:insert>
+        </div>
+        <div>
+            <div id="left">
+                <ui:insert name="left">
+                    <h:form id="pm">
+                        <p:panelMenu style="width:300px" >
+                            <p:submenu label="Tablas">
+                                <p:menuitem value="Autor"  outcome="autor"/>
+                                <p:menuitem value="Libro" outcome="libro" />
+                            </p:submenu>
+                        </p:panelMenu>
+                    </h:form>
+                </ui:insert>
+            </div>
+            <div id="content" class="left_content">
+                <ui:insert name="content">
+                    <p:growl id="msj" />
+                    <p:dialog id="diagAddAutor" 
+                              widgetVar="wVarAddAutor"
+                              header="Datos"
+                              closeOnEscape="true"
+                              draggable="false"
+                              resizable="false"
+                              modal="true"
+                              appendTo="@(body)"
+                              >
+                        <p:ajax event="close" listener="#{autorCtrl.limpiar()}" update="valores"/>
+                        <h:form id="valores">
+                            <h1><h:outputText value="Nuevo registro"/></h1>
+                            <p:panelGrid columns="2">
+                                <p:outputLabel value="Idautor:" for="idautor" />
+                                <p:inputText id="idautor" value="#{autorCtrl.autor.idautor}" title="Idautor" required="true" requiredMessage="The Idautor field is required."/>
+                                <p:outputLabel value="Nombreautor:" for="nombreautor" />
+                                <p:inputText id="nombreautor" value="#{autorCtrl.autor.nombreautor}" title="Nombreautor" required="true" requiredMessage="The Nombreautor field is required."/>
+                                <p:outputLabel value="Apellidoautor:" for="apellidoautor" />
+                                <p:inputText id="apellidoautor" value="#{autorCtrl.autor.apellidoautor}" title="Apellidoautor" required="true" requiredMessage="The Apellidoautor field is required."/>
+                                <p:outputLabel value="Nacionalidadautor:" for="nacionalidadautor" />
+                                <p:inputText id="nacionalidadautor" value="#{autorCtrl.autor.nacionalidadautor}" title="Nacionalidadautor" required="true" requiredMessage="The Nacionalidadautor field is required."/>
+                                <p:commandButton value="Guardar" actionListener="#{autorCtrl.AddAutor()}" 
+                                                 update=":listdata valores :msj"
+                                                 oncomplete="PF('wVarAddAutor').hide();"
+                                                 />
+                            </p:panelGrid>
+                        </h:form>
+                    </p:dialog>
+                    <h3><h:outputText value="Autores"/></h3>
+                    <h:form id="nuevo">
+                        <p:commandButton value="Nuevo Autor" oncomplete="PF('wVarAddAutor').show();"/>
+                        <hr/>
+                    </h:form>
+                    <h:form id="listdata">
+                        <p:dataTable style=""  value="#{autorCtrl.ListAllAutor()}" var="aut"
+                                     paginator="true" paginatorPosition="bottom" rows="10"
+                                     emptyMessage="No hay datos">
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="ID"/>
+                                </f:facet>
+                                <h:outputText value="#{aut.idautor}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="NOMBRE"/>
+                                </f:facet>
+                                <h:outputText value="#{aut.nombreautor} #{aut.apellidoautor}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="NACIONALIDAD"/>
+                                </f:facet>
+                                <h:outputText value="#{aut.nacionalidadautor}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="ACCION"/>
+                                </f:facet>
+
+                                <p:commandButton value="Editar" actionListener="#{autorCtrl.SelectEditAutor(aut)}" update=":valores :valoresE" oncomplete="PF('wVarEditAutor').show();" />
+
+
+
+                                <p:commandButton value="Elimnar" actionListener="#{autorCtrl.DeleteAutor(aut)}" update=":listdata :msj">
+                                    <p:confirm header="Confirmation" message="Esta seguro de elimnar esta información" icon="pi pi-exclamation-triangle"/>
+                                </p:commandButton>
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="350">
+                                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" />
+                                </p:confirmDialog>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                    <p:dialog id="diagEditutor" 
+                              widgetVar="wVarEditAutor"
+                              header="Datos"
+                              closeOnEscape="true"
+                              draggable="false"
+                              resizable="false"
+                              modal="true"
+                              appendTo="@(body)"
+                              >
+                        <p:ajax event="close" listener="#{autorCtrl.limpiar()}" update=":valores :valoresE"/>
+                        <h:form id="valoresE">
+                            <h1><h:outputText value="Editar Autor"/></h1>
+                            <p:panelGrid columns="2">
+                                <p:outputLabel value="Idautor:" for="idautor" />
+                                <p:inputText id="idautor" value="#{autorCtrl.autor.idautor}" title="Idautor" required="true" requiredMessage="The Idautor field is required."/>
+                                <p:outputLabel value="Nombreautor:" for="nombreautor" />
+                                <p:inputText id="nombreautor" value="#{autorCtrl.autor.nombreautor}" title="Nombreautor" required="true" requiredMessage="The Nombreautor field is required."/>
+                                <p:outputLabel value="Apellidoautor:" for="apellidoautor" />
+                                <p:inputText id="apellidoautor" value="#{autorCtrl.autor.apellidoautor}" title="Apellidoautor" required="true" requiredMessage="The Apellidoautor field is required."/>
+                                <p:outputLabel value="Nacionalidadautor:" for="nacionalidadautor" />
+                                <p:inputText id="nacionalidadautor" value="#{autorCtrl.autor.nacionalidadautor}" title="Nacionalidadautor" required="true" requiredMessage="The Nacionalidadautor field is required."/>
+                                <p:commandButton value="Actualizar" actionListener="#{autorCtrl.EditAutor()}" 
+                                                 update=":listdata :valores :valoresE :msj"
+                                                 oncomplete="PF('wVarEditAutor').hide();"
+                                                 />
+                            </p:panelGrid>
+                        </h:form>
+                    </p:dialog>
+                </ui:insert>
+            </div>
+        </div>
+        <div id="bottom">
+            <ui:insert name="bottom">Bottom</ui:insert>
+        </div>
+
+    </h:body>
+
+</html>
