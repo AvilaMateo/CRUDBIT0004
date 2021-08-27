@@ -44,6 +44,9 @@ public class AutorCtrl implements Serializable {
     public List<Autor> ListAllAutor() {
         return autorFacade.findAll();
     }
+//    public List<Autor> ListlibrosAutor() {
+//        return autorFacade.listLibrosAutor();
+//    }
 
     //metodo para agregar unautores 
     public void AddAutor() {

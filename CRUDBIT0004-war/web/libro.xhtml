@@ -5,25 +5,28 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
     <h:head>
-        <title>Facelet Title</title>
+        <title>...:::Book:::...</title>
+        <style>
+
+            .ui-panelgrid td, .ui-panelgrid tr {
+                border: none !important;
+            }
+        </style>
     </h:head>
     <h:body>
         <div style="width: 90%; min-height: 100vh; margin:0 auto; border: 1px solid gray">
             <div style="background-color: lightskyblue; color:#000; height: 70px; margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
-                <h2 style="letter-spacing: 5px; font-style: normal; text-transform: uppercase;">..::@BOOK::..</h2>
+                &nbsp;
+                <p:graphicImage library="img" name="open-book.png" style="width: 60 px; height: 60px; margin-right: 30px;"/>
+                <h2 style="letter-spacing: 5px; font-style: normal; text-transform: uppercase;" >..::@BOOK::..</h2>
+                &nbsp;
+                <p:graphicImage library="img" name="open-book.png" style="width: 60px; height: 60px; margin-left: 30px;"/>
             </div>
             <p:growl id="msj" />
 
-            <h:form id="pm">
-                <p:panelMenu>
-                    <p:submenu label="Tablas">
-                        <p:menuitem value="Autor"  outcome="autor"/>
-                        <p:menuitem value="Libro" outcome="libro" />
-                    </p:submenu>
-                </p:panelMenu>
-            </h:form>
-            <p:dialog id="diagAddAutor" 
-                      widgetVar="wVarAddAutor"
+
+            <p:dialog id="diagLibro" 
+                      widgetVar="wVarAddLibro"
                       header="Nuevo Libro"
                       closeOnEscape="true"
                       draggable="false"
@@ -31,7 +34,7 @@
                       modal="true"
                       appendTo="@(body)"
                       >
-                <p:ajax event="close" listener="#{autorCtrl.limpiar()}" update=":valores"/>
+                <p:ajax event="close" listener="#{libroCtrl.limpiar()}" update=":valores :valoresE"/>
                 <h:form id="valores">
                     <p:panelGrid columns="2">
                         <p:outputLabel value="Id:" for="idlibro" />
@@ -42,25 +45,41 @@
                         <p:calendar id="fechalanzamiento" value="#{libroCtrl.libro.fechalanzamiento}" title="Fechalanzamiento" >
                         </p:calendar>
                         <p:outputLabel value="Autor:" for="autor" />
-                        <p:selectOneMenu id="autor" value="#{libroCtrl.libro.autor}" >
+                        <p:selectOneMenu id="autor" value="#{libroCtrl.autor.idautor}" >
                             <!-- TODO: update below reference to list of available items-->
-                            <f:selectItems itemLabel="- Seleccione -" value=""/>
-                            <f:selectItems value="#{libroCtrl.libro.autor}"/>
+                            <f:selectItems value="#{autorCtrl.ListAllAutor()}" var="aut" itemValue="#{aut.idautor}" itemLabel="#{aut.idautor} - #{aut.nombreautor} #{aut.apellidoautor}"/>
                         </p:selectOneMenu>
-                        <p:commandButton value="Guardar" actionListener="#{libroCtrl.AddLibro()}" 
-                                         update=":listdata :valores :msj"
-                                         oncomplete="PF('wVarAddAutor').hide();"
-                                         />
+                        <p:commandLink  actionListener="#{libroCtrl.AddLibro()}"  style="height: 20px; border: 1px solid #dddddd; display: flex; align-items: center; text-decoration: none; padding: 5px" 
+                                        update=":listdata :valores :valores :msj"
+                                        oncomplete="PF('wVarAddLibro').hide();"
+                                        >
+                            <p:graphicImage library="img" name="save.png"/> &nbsp;
+                            <h3>Guardar</h3> 
+                        </p:commandLink>
+
                     </p:panelGrid>
                 </h:form>
             </p:dialog>
-            <h3><h:outputText value="Libros"/></h3>
-            <h:form id="nuevo">
-                <p:commandButton value="Nuevo Libro" oncomplete="PF('wVarAddAutor').show();"/>
-                <hr/>
-            </h:form>
+            <p:fieldset>
+                <h:form id="pm">
+                    <p:panelMenu>
+                        <p:submenu label="Tablas">
+                            <p:menuitem value="AUTORES"  outcome="autor"/>
+                            <p:menuitem value="LIBROS" outcome="libro" />
+                        </p:submenu>
+                    </p:panelMenu>
+                </h:form>
+                <br /><br />
+                <h3><h:outputText value="LISTADO DE LIBROS"/></h3>
+                <h:form id="nuevo">
+                    <p:commandLink oncomplete="PF('wVarAddLibro').show();" style="text-decoration: none ; display: flex;align-items: center; width: 10%">
+                        <h3><h:outputLabel value="Nuevo Libro"/></h3> &nbsp;&nbsp;&nbsp;
+                        <p:graphicImage library="img" name="plus.png"/>
+                    </p:commandLink>
+                </h:form>
+            </p:fieldset>
             <div>
-
+                <br />
                 <h:form id="listdata">
                     <p:dataTable style="text-transform: uppercase; text-align: center;"  value="#{libroCtrl.ListAllLibro()}" var="lib"
                                  paginator="true" paginatorPosition="bottom" rows="10"
@@ -81,26 +100,31 @@
                             <f:facet name="header">
                                 <h:outputText value="FECHA PUBLICACIÓN"/>
                             </f:facet>
-                            <h:outputText value="#{lib.fechalanzamiento}"/>
+                            <h:outputText value="#{lib.fechalanzamiento}">
+                                <f:convertDateTime pattern="dd/MM/YYYY" />
+                            </h:outputText>
                         </p:column>
                         <p:column>
                             <f:facet name="header">
                                 <h:outputText value="Autor"/>
                             </f:facet>
-                            <h:outputText value="#{lib.autor}"/>
+                            <h:outputText value="#{lib.autor.nombreautor} "/>
                         </p:column>
                         <p:column>
                             <f:facet name="header">
                                 <h:outputText value="ACCION"/>
                             </f:facet>
 
-                            <p:commandButton value="Editar" actionListener="#{libroCtrl.SelectEditLibro(lib)}" update=":valores :valoresE" oncomplete="PF('wVarEditLibro').show();" />
+                            <p:commandLink actionListener="#{libroCtrl.SelectEditLibro(lib)}" 
+                                           update=":valores :valoresE" oncomplete="PF('wVarEditLibro').show();" >
+                                <p:graphicImage library="img" name="lapiz.png"/>
+                            </p:commandLink>
+                            &nbsp; &nbsp; &nbsp;
 
-||
-
-                            <p:commandButton value="Elimnar" actionListener="#{libroCtrl.DeleteLibro(lib)}" update=":listdata :msj">
+                            <p:commandLink actionListener="#{libroCtrl.DeleteLibro(lib)}" update=":listdata :msj">
+                                <p:graphicImage library="img" name="borrar.png"/>
                                 <p:confirm header="Confirmation" message="Esta seguro de elimnar esta información" icon="pi pi-exclamation-triangle"/>
-                            </p:commandButton>
+                            </p:commandLink>
                             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="350">
                                 <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
                                 <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" />
@@ -111,17 +135,16 @@
             </div>
             <p:dialog id="diagEditLibro" 
                       widgetVar="wVarEditLibro"
-                      header="Datos"
+                      header="Editar Libro"
                       closeOnEscape="true"
                       draggable="false"
                       resizable="false"
                       modal="true"
                       appendTo="@(body)"
                       >
-                <p:ajax event="close" listener="#{autorCtrl.limpiar()}" update=":valores :valoresE"/>
+                <p:ajax event="close" listener="#{libroCtrl.limpiar()}" update=":valores :valoresE"/>
                 <h:form id="valoresE">
-                    <h1><h:outputText value="Editar Autor"/></h1>
-                    <p:panelGrid columns="2">
+                    <p:panelGrid columns="2" >
                         <p:outputLabel value="Id:" for="idlibro" />
                         <p:inputText id="idlibro" value="#{libroCtrl.libro.idlibro}" title="Idlibro" readonly="true" disabled="true"/>
                         <p:outputLabel value="Titulo:" for="titulolibro" />
@@ -130,15 +153,21 @@
                         <p:calendar id="fechalanzamiento" value="#{libroCtrl.libro.fechalanzamiento}" title="Fechalanzamiento" >
                         </p:calendar>
                         <p:outputLabel value="Autor:" for="autor" />
-                        <p:selectOneMenu id="autor" value="#{libroCtrl.libro.autor}" >
+                        <p:selectOneMenu id="autor" value="#{libroCtrl.autor.idautor}" >
                             <!-- TODO: update below reference to list of available items-->
-                            <f:selectItems itemLabel="- Seleccione -" value=""/>
-                            <f:selectItems value="#{libroCtrl.SelectItemsOneAutor()}"/>
+                            <f:selectItems value="#{autorCtrl.ListAllAutor()}" var="aut" itemValue="#{aut.idautor}" itemLabel="#{aut.idautor} - #{aut.nombreautor} #{aut.apellidoautor}"/>
                         </p:selectOneMenu>
-                        <p:commandButton value="Actualizar" actionListener="#{libroCtrl.EditLibro()}" 
-                                         update=":listdata :valores :msj"
-                                         oncomplete="PF('wVarAddAutor').hide();"
-                                         />
+                        <p:commandLink  actionListener="#{libroCtrl.EditLibro()}" style="height: 20px; border: 1px solid #dddddd; display: flex; align-items: center; text-decoration: none; padding: 5px"  
+                                        update=":listdata :valores :valoresE :msj"
+                                        oncomplete="PF('wVarEditLibro').hide();"
+                                        >
+                            <p:graphicImage library="img" name="save.png"/> &nbsp;
+                            <h3>Actualizar</h3> 
+                        </p:commandLink>
+                        <p:commandLink oncomplete="PF('wVarEditLibro').hide();" style="height: 20px; border: 1px solid #dddddd; display: flex; align-items: center; text-decoration: none; padding: 5px">
+                            <p:graphicImage library="img" name="cerrar.png"/> &nbsp;
+                            <h3>Cancelar</h3> 
+                        </p:commandLink>
                     </p:panelGrid>
                 </h:form>
             </p:dialog>

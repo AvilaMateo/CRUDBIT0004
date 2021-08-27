@@ -33,11 +33,14 @@ public class LibroCtrl implements Serializable {
     private LibroFacade libroFacade;
 
     private Libro libro;
+    private Autor autor;
     String mensaje = "";
+    
     private List<SelectItem> SelectItemsOneAutor;
 
     public LibroCtrl() {
         this.libro = new Libro();
+        this.autor = new Autor();
     }
 
     public Libro getLibro() {
@@ -48,10 +51,30 @@ public class LibroCtrl implements Serializable {
         this.libro = libro;
     }
 
+    public AutorFacade getAutorFacade() {
+        return autorFacade;
+    }
+
+    public void setAutorFacade(AutorFacade autorFacade) {
+        this.autorFacade = autorFacade;
+    }
+
+    public Autor getAutor() {
+        return autor;
+    }
+
+    public void setAutor(Autor autor) {
+        this.autor = autor;
+    }
+
     //metodo para listar todo los autores 
     public List<Libro> ListAllLibro() {
         return libroFacade.findAll();
     }
+    
+//      public List<Libro> ListlibrosAutor() {
+//        return libroFacade.listLibrosAutor();
+//    }
 
 //seleccion los autores
     public List<SelectItem> SelectItemsOneAutor() {
@@ -76,7 +99,8 @@ public class LibroCtrl implements Serializable {
     //metodo para agregar unautores 
     public void AddLibro() {
         try {
-            libroFacade.create(libro);
+            this.libro.setAutor(autor);
+            this.libroFacade.create(libro);
             this.libro = new Libro();
             this.mensaje = "Libro registado Exitosamente";
         } catch (Exception e) {
@@ -89,21 +113,39 @@ public class LibroCtrl implements Serializable {
     }
 
     //preparamos los datos del autor a editar
-    public String SelectEditLibro(Libro libro) {
+    public void SelectEditLibro(Libro libro) {
+        this.autor.setIdautor(libro.getAutor().getIdautor());
         this.libro = libro;
-        return "updateAutor";
+
     }
 
     //metodo para editar un autores 
-    public String EditLibro() {
-        this.libroFacade.edit(libro);
-        this.libro = new Libro();
-        return "index";
+    public void EditLibro() {
+        try {
+            this.libro.setAutor(autor);
+            this.libroFacade.edit(libro);
+            this.libro = new Libro();
+            this.mensaje = "Libro registado Exitosamente";
+        } catch (Exception e) {
+            this.mensaje = "Erro: " + e.getMessage();
+
+        }
+        FacesMessage mens = new FacesMessage(this.mensaje);
+        FacesContext.getCurrentInstance().addMessage(null, mens);
+
     }
 
     //eliminar un alumno
     public void DeleteLibro(Libro libro) {
         this.libroFacade.remove(libro);
+    }
+
+    //cargar autor para el libro a editar
+
+
+    public void limpiar() {
+        this.libro = new Libro();
+        this.autor = new Autor();
     }
 
 }
